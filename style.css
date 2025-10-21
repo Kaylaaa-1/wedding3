@@ -901,10 +901,11 @@ button:hover {
   }
 
   .gallery-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 2fr;
   }
 
   .gallery-grid img.wide {
     grid-column: span 1;
   }
+
 }
