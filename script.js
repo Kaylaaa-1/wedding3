@@ -152,34 +152,3 @@ function kirimKomentar() {
     return;
   }
 
-  // Kirim data ke Google Sheet
-  fetch("https://script.google.com/macros/s/AKfycbwKgXCO9vvnnhhdBzLE6i2buaNISdTHyQ4v9RfR9kqTjJMjNHhJeoPf-ywKuEdlb-1cVg/exec", { // Ganti dengan URL kamu sendiri!
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `nama=${encodeURIComponent(nama)}&ucapan=${encodeURIComponent(ucapan)}&konfirmasi=${encodeURIComponent(konfirmasi)}`
-  })
-  .then(response => response.text())
-  .then(result => {
-    console.log("Data terkirim:", result);
-
-    // Tambahkan ke tampilan tanpa reload
-    const komentarBaru = document.createElement("div");
-    komentarBaru.className = "comment";
-
-    const waktu = new Date().toLocaleString('id-ID', {
-      day: 'numeric', month: 'short', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    });
-
-    komentarBaru.innerHTML = `
-      <div class="name">${nama} <span style="color:${konfirmasi === "Hadir" ? "green" : "red"};">${konfirmasi}</span></div>
-      <div class="text">${ucapan}</div>
-      <div class="time">${waktu}</div>
-    `;
-    document.getElementById("daftarKomentar").prepend(komentarBaru);
-
-    document.getElementById("ucapan").value = "";
-    document.getElementById("konfirmasi").value = "";
-  })
-  .catch(error => console.error("Error:", error));
-}
