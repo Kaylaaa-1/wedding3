@@ -197,8 +197,84 @@
       <source src="musik/Pernikahan Kitaa.mp3" type="audio/mpeg">
     </audio>
   </div>
+<!-- FIREBASE SCRIPT -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+  // 🔧 GANTI DENGAN KONFIGURASI PROYEK FIREBASE KAMU
+  const firebaseConfig = {
+    apiKey: "API_KEY_KAMU",
+    authDomain: "PROJECT_ID.firebaseapp.com",
+    projectId: "PROJECT_ID",
+    storageBucket: "PROJECT_ID.appspot.com",
+    messagingSenderId: "SENDER_ID",
+    appId: "APP_ID"
+  };
+
+  // Inisialisasi Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Fungsi kirim komentar (mengganti fetch ke Google Sheet)
+  window.kirimKomentar = async function() {
+    const nama = document.getElementById("nama").value.trim() || "Tamu Undangan";
+    const ucapan = document.getElementById("ucapan").value.trim();
+    const konfirmasi = document.getElementById("konfirmasi").value;
+
+    if (!ucapan || !konfirmasi) {
+      alert("Harap isi ucapan dan konfirmasi kehadiran!");
+      return;
+    }
+
+    await addDoc(collection(db, "komentar"), {
+      nama,
+      ucapan,
+      konfirmasi,
+      waktu: new Date()
+    });
+
+    document.getElementById("ucapan").value = "";
+    document.getElementById("konfirmasi").value = "";
+
+    alert("Ucapanmu berhasil dikirim!");
+  };
+
+  // 🔄 Tampilkan komentar secara real-time
+  const q = query(collection(db, "komentar"), orderBy("waktu", "desc"));
+  onSnapshot(q, (snapshot) => {
+    const daftar = document.getElementById("daftarKomentar");
+    daftar.innerHTML = "";
+    let hadir = 0;
+    let tidakHadir = 0;
+
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.konfirmasi === "Hadir") hadir++;
+      if (data.konfirmasi === "Tidak Hadir") tidakHadir++;
+
+      daftar.innerHTML += `
+        <div class="comment">
+          <div class="name">${data.nama} 
+            <span style="color:${data.konfirmasi === "Hadir" ? "green" : "red"};">
+              ${data.konfirmasi}
+            </span>
+          </div>
+          <div class="text">${data.ucapan}</div>
+          <div class="time">${new Date(data.waktu.seconds * 1000).toLocaleString()}</div>
+        </div>
+      `;
+    });
+
+    // Update counter
+    document.getElementById("hadirCount").innerText = `${hadir} Hadir`;
+    document.getElementById("tidakHadirCount").innerText = `${tidakHadir} Tidak Hadir`;
+    document.getElementById("comment-count").innerText = `${snapshot.size} Ucapan`;
+  });
+</script>
 
   <script src="script.js"></script>
 </body>
+
 
 </html>
